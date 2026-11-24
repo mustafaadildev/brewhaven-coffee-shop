@@ -1,0 +1,208 @@
+﻿@using System.Collections.Generic
+@using BrewHaven.Web.Models
+@model List<BrewHaven.Web.Models.MenuItem>
+@{
+    ViewBag.Title = "Home";
+    var heroImage = "~/Content/images/menu/hero-splash.jpg";
+    var heroAlt = "Espresso shot with a swirl of crema at Brew Haven";
+}
+<section class="land-hero" id="top">
+    <div class="land-glow" aria-hidden="true"></div>
+    <div class="container land-hero-grid">
+        <div class="land-hero-copy">
+            <p class="land-chip"><span class="land-chip-dot" aria-hidden="true"></span>Premium small-batch coffee · Portland, OR</p>
+            <h1>Good mornings start with a <em>seriously good</em> cup.</h1>
+            <p class="land-lede">Roasted in our back room, pulled to order at the bar and baked before sunrise — Brew Haven is where the neighborhood wakes up, one honest cup at a time.</p>
+            <div class="land-hero-actions">
+                <a class="btn btn-solid btn-lg" href="@Url.Action("Menu", "Home")">Order your first cup</a>
+                <a class="btn btn-ghost btn-lg" href="@Url.Action("Contact", "Home")">Find the shop</a>
+            </div>
+            <ul class="land-trust">
+                <li><strong>4.9★</strong><span>from 400+ regulars</span></li>
+                <li><strong>100%</strong><span>arabica, direct-trade</span></li>
+                <li><strong>Roasted</strong><span>in-house weekly</span></li>
+            </ul>
+        </div>
+        <div class="land-hero-media">
+            <img src="@Url.Content(heroImage)" alt="@heroAlt" onerror="this.onerror=null;this.src='@Url.Content("~/Content/images/hero.jpg")';" />
+            <div class="land-float land-float-hours">
+                <strong>Open today</strong>
+                <span>7:00 – 18:00 · kitchen till 17:30</span>
+            </div>
+            <div class="land-float land-float-pick">
+                <span class="land-float-tag">Barista's pick</span>
+                <strong>Caramel Macchiato</strong>
+                <span>vanilla · espresso · caramel drizzle</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+@if (Model.Count > 0)
+{
+    <section class="section land-section" id="popular">
+        <div class="container">
+            <div class="section-head center">
+                <p class="eyebrow eyebrow-light">Popular right now</p>
+                <h2>The cups our regulars keep ordering</h2>
+                <p class="section-sub land-sub">Straight from today's menu — tap add and it's in your order.</p>
+            </div>
+            <div class="drink-grid">
+                @foreach (var item in Model)
+                {
+                    <article class="drink-card reveal@(item.IsAvailable ? "" : " soldout")">
+                        <div class="drink-media">
+                            @if (!string.IsNullOrEmpty(item.ImageUrl) && item.ImageUrl.StartsWith("~/") && System.IO.File.Exists(Server.MapPath(item.ImageUrl)))
+                            {
+                                <img src="@Url.Content(item.ImageUrl)" alt="@item.Name at Brew Haven" loading="lazy" />
+                            }
+                            else
+                            {
+                                <div class="menu-card-ph menu-card-ph-dark" role="img" aria-label="@item.Name">
+                                    <span>@item.Name.Substring(0, 1)</span>
+                                </div>
+                            }
+                            @if (!string.IsNullOrEmpty(item.Badge))
+                            {
+                                <span class="menu-card-chip">@item.Badge</span>
+                            }
+                        </div>
+                        <div class="drink-body">
+                            <h3>@item.Name</h3>
+                            <p>@item.Description</p>
+                            <div class="menu-card-foot">
+                                <span class="menu-card-price">@Money.Usd(item.Price)</span>
+                                @if (item.IsAvailable)
+                                {
+                                    using (Html.BeginForm("Add", "Cart", FormMethod.Post, new { @class = "menu-card-add" }))
+                                    {
+                                        @Html.AntiForgeryToken()
+                                        @Html.Hidden("menuItemId", item.Id)
+                                        @Html.Hidden("quantity", 1)
+                                        <button type="submit" class="btn btn-solid btn-sm">Add</button>
+                                    }
+                                }
+                            </div>
+                        </div>
+                    </article>
+                }
+            </div>
+            <p class="center-cta"><a class="btn btn-outline-land" href="@Url.Action("Menu", "Home")">See the full menu</a></p>
+        </div>
+    </section>
+}
+
+<section class="section land-section land-section-alt">
+    <div class="container">
+        <div class="section-head center">
+            <p class="eyebrow eyebrow-light">Why Brew Haven</p>
+            <h2>Small shop, stubborn standards</h2>
+        </div>
+        <div class="land-tiles">
+            <div class="land-tile reveal">
+                <span class="land-tile-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3c3.5 2.8 5.5 5.6 5.5 8.6a5.5 5.5 0 0 1-11 0C6.5 8.6 8.5 5.8 12 3z" fill="none" stroke="currentColor" stroke-width="1.7"></path><path d="M12 21v-8" stroke="currentColor" stroke-width="1.7" fill="none"></path></svg></span>
+                <h3>Roasted in-house</h3>
+                <p>Twelve single origins a year, roasted in twenty-kilo batches every Tuesday and rested seven days before the first pull.</p>
+            </div>
+            <div class="land-tile reveal">
+                <span class="land-tile-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="7" fill="none" stroke="currentColor" stroke-width="1.7"></circle><circle cx="12" cy="13" r="3" fill="currentColor"></circle><path d="M9.5 3.5h5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path></svg></span>
+                <h3>Baked at dawn</h3>
+                <p>Croissants, cinnamon rolls and sourdough come out of the oven before the first pour lands at 7am — nothing sits under a lamp.</p>
+            </div>
+            <div class="land-tile reveal">
+                <span class="land-tile-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h11v6a5 5 0 0 1-5 5h-1a5 5 0 0 1-5-5z" fill="none" stroke="currentColor" stroke-width="1.7"></path><path d="M16 9.5h2.2a2.3 2.3 0 0 1 0 4.6H16" fill="none" stroke="currentColor" stroke-width="1.7"></path><path d="M8.5 3v2.4M12.5 3v2.4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path></svg></span>
+                <h3>Made to order</h3>
+                <p>Your shot is dialled in twice a day as humidity shifts, and every milk — oat, almond, soy — is on the house.</p>
+            </div>
+            <div class="land-tile reveal">
+                <span class="land-tile-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5C7 6.5 17 6.5 20 9.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path><path d="M7 13c2.8-2.6 7.2-2.6 10 0" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path><path d="M10 16.5c1.2-1.1 2.8-1.1 4 0" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path><circle cx="12" cy="19" r="1.2" fill="currentColor"></circle></svg></span>
+                <h3>Your corner table</h3>
+                <p>Fast wifi, outlet-lined window bench and zero rush — the table is yours for as long as the cup lasts.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section land-section land-stats-band">
+    <div class="container land-stats">
+        <div class="land-stat"><strong>12</strong><span>single origins a year</span></div>
+        <div class="land-stat"><strong>18h</strong><span>cold brew steep</span></div>
+        <div class="land-stat"><strong>7d</strong><span>bean rest before serving</span></div>
+        <div class="land-stat"><strong>4.9★</strong><span>average from 400+ reviews</span></div>
+    </div>
+</section>
+
+<section class="section land-section">
+    <div class="container split">
+        <div class="split-media reveal">
+            <img src="@Url.Content("~/Content/images/espresso.jpg")" alt="Double espresso with golden crema on a wooden counter" loading="lazy" />
+        </div>
+        <div class="split-body">
+            <p class="eyebrow eyebrow-light">From the bar</p>
+            <h2>Small batch, pulled to order</h2>
+            <p>Every week we roast a short list of origins in our back-room roastery — never more than 20 kilos at a time — and rest them for at least seven days before they meet the grinder.</p>
+            <p>Can't decide? Tell your barista what you usually drink. They'll steer you right, and the first tasting pour of a new origin is on the house.</p>
+        </div>
+    </div>
+</section>
+
+<section class="section land-section land-section-alt">
+    <div class="container">
+        <div class="section-head center">
+            <p class="eyebrow eyebrow-light">Regulars say</p>
+            <h2>Four hundred reviews. One theme.</h2>
+        </div>
+        <div class="cards-3">
+            <figure class="land-quote reveal">
+                <div class="stars" aria-label="5 out of 5 stars">★★★★★</div>
+                <blockquote>"The flat white here ruined every other coffee for me. I've been coming every weekday since they opened the Willow Lane shop."</blockquote>
+                <figcaption>Maya R. — regular since 2019</figcaption>
+            </figure>
+            <figure class="land-quote reveal">
+                <div class="stars" aria-label="5 out of 5 stars">★★★★★</div>
+                <blockquote>"Best breakfast burrito in the neighborhood, and the staff remembered my dog's name before mine. That's a five-star coffee shop."</blockquote>
+                <figcaption>Daniel K. — Sunday pancakes loyalist</figcaption>
+            </figure>
+            <figure class="land-quote reveal">
+                <div class="stars" aria-label="5 out of 5 stars">★★★★★</div>
+                <blockquote>"I work from the window bench twice a week. Fast wifi, great playlists, and nobody minds if you camp out over one latte."</blockquote>
+                <figcaption>Priya S. — remote worker</figcaption>
+            </figure>
+        </div>
+    </div>
+</section>
+
+<section class="section land-section">
+    <div class="container land-visit">
+        <div class="land-visit-info">
+            <p class="eyebrow eyebrow-light">Hours &amp; location</p>
+            <h2>Find your corner</h2>
+            <table class="hours-table hours-table-dark">
+                <tbody>
+                    <tr><td>Monday – Friday</td><td>7:00 – 18:00</td></tr>
+                    <tr><td>Saturday</td><td>8:00 – 18:00</td></tr>
+                    <tr><td>Sunday</td><td>8:00 – 16:00</td></tr>
+                </tbody>
+            </table>
+            <p class="land-visit-address"><strong>214 Willow Lane, Riverbend</strong><br />Portland, OR 97209 — two blocks off the green line, bike racks out front.<br /><a href="tel:+15035550147">(503) 555-0147</a></p>
+            <a class="btn btn-outline-land" href="@Url.Action("Contact", "Home")">Directions &amp; parking</a>
+        </div>
+        <div class="land-visit-art" role="img" aria-label="Stylized map showing Brew Haven at 214 Willow Lane">
+            <div class="map-grid"></div>
+            <div class="map-pin">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a7 7 0 0 1 7 7c0 5-7 13-7 13S5 14 5 9a7 7 0 0 1 7-7z" fill="#1b120b"></path><circle cx="12" cy="9" r="2.6" fill="#c98a3d"></circle></svg>
+                <span class="map-pin-label">Brew Haven</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section section-dark cta-band">
+    <div class="container cta-inner">
+        <div>
+            <h2>Reserve the corner booth for your next morning meeting</h2>
+            <p>Tables for 4–8, pour-over flights and pastry boards — tell us when and we'll have the cups warm.</p>
+        </div>
+        <a class="btn btn-solid btn-lg" href="@Url.Action("Contact", "Home")">Plan a visit</a>
+    </div>
+</section>

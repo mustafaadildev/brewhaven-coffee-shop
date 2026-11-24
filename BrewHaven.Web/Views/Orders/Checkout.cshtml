@@ -1,0 +1,85 @@
+﻿@using System.Collections.Generic
+@using System.Linq
+@using BrewHaven.Web.Models
+@model BrewHaven.Web.Models.CheckoutForm
+@{
+    ViewBag.Title = "Checkout";
+    var lines = ViewBag.Lines as List<CartLineView>;
+    var total = lines == null ? 0m : lines.Sum(l => l.LineTotal);
+}
+
+<section class="page-hero page-hero-slim">
+    <div class="container">
+        <p class="eyebrow eyebrow-light">Brew Haven · checkout</p>
+        <h1>Almost yours</h1>
+        <p class="page-hero-lede">Tell us who to hand the cups to. We save the order with your email and have it ready by the time you said.</p>
+    </div>
+</section>
+
+<div class="section cart-body">
+    <div class="container checkout-grid">
+        <div class="checkout-summary">
+            <h2>What's coming</h2>
+            <ul class="summary-list">
+                @if (lines != null)
+                {
+                    foreach (var line in lines)
+                    {
+                        <li>
+                            <span class="summary-name"><strong>@line.Quantity × @line.Name</strong>
+                                @if (!string.IsNullOrEmpty(line.Notes))
+                                {
+                                    <span class="summary-notes">— @line.Notes</span>
+                                }
+                            </span>
+                            <span class="summary-price">@Money.Usd(line.LineTotal)</span>
+                        </li>
+                    }
+                }
+            </ul>
+            <div class="cart-total summary-total">
+                <span>Total</span>
+                <strong>@Money.Usd(total)</strong>
+            </div>
+            <a class="btn btn-ghost btn-sm" href="@Url.Action("Index", "Cart")">Back to the order</a>
+        </div>
+
+        <div class="contact-form-card checkout-form-card">
+            <h2>Your details</h2>
+            <p class="section-sub">Only what we need to confirm and hand over the order.</p>
+            @using (Html.BeginForm("Checkout", "Orders", FormMethod.Post, new { @class = "contact-form" }))
+            {
+                @Html.AntiForgeryToken()
+                @Html.ValidationSummary(true, "", new { @class = "validation-summary" })
+
+                <div class="field-row">
+                    <div class="field">
+                        @Html.LabelFor(m => m.CustomerName, "Name *")
+                        @Html.TextBoxFor(m => m.CustomerName, new { @class = "input", placeholder = "Maya Rivera" })
+                        @Html.ValidationMessageFor(m => m.CustomerName)
+                    </div>
+                    <div class="field">
+                        @Html.LabelFor(m => m.Email, "Email *")
+                        @Html.TextBoxFor(m => m.Email, new { @class = "input", placeholder = "you@example.com", type = "email" })
+                        @Html.ValidationMessageFor(m => m.Email)
+                    </div>
+                </div>
+                <div class="field-row">
+                    <div class="field">
+                        @Html.LabelFor(m => m.Phone, "Phone (optional)")
+                        @Html.TextBoxFor(m => m.Phone, new { @class = "input", placeholder = "(503) 555-0100" })
+                        @Html.ValidationMessageFor(m => m.Phone)
+                    </div>
+                    <div class="field">&nbsp;</div>
+                </div>
+                <div class="field">
+                    @Html.LabelFor(m => m.Notes, "Anything else for the whole order?")
+                    @Html.TextAreaFor(m => m.Notes, new { @class = "input", placeholder = "Ready at 8:15, take two sugars out, serve in my keep-cup…", rows = 3 })
+                    @Html.ValidationMessageFor(m => m.Notes)
+                </div>
+                <button type="submit" class="btn btn-solid btn-lg">Place the order</button>
+                <p class="form-note">Per-item changes (milk choice, extras…) are set on the <a href="@Url.Action("Index", "Cart")">order page</a> and travel with each line.</p>
+            }
+        </div>
+    </div>
+</div>

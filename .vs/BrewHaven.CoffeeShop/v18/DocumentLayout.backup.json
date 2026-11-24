@@ -1,0 +1,38 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "D:\\BrewHaven-CoffeeShop\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{6C5F1B9A-2E44-4C3A-9D8E-F10A47B2E3D1}|BrewHaven.Web\\BrewHaven.Web.csproj|d:\\brewhaven-coffeeshop\\brewhaven.web\\views\\home\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{6C5F1B9A-2E44-4C3A-9D8E-F10A47B2E3D1}|BrewHaven.Web\\BrewHaven.Web.csproj|solutionrelative:brewhaven.web\\views\\home\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Index.cshtml",
+              "DocumentMoniker": "D:\\BrewHaven-CoffeeShop\\BrewHaven.Web\\Views\\Home\\Index.cshtml",
+              "RelativeDocumentMoniker": "BrewHaven.Web\\Views\\Home\\Index.cshtml",
+              "ToolTip": "D:\\BrewHaven-CoffeeShop\\BrewHaven.Web\\Views\\Home\\Index.cshtml",
+              "RelativeToolTip": "BrewHaven.Web\\Views\\Home\\Index.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-11-24T12:26:17.555Z",
+              "EditorCaption": "",
+              "OwnerCaption": "%2"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

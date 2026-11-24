@@ -1,0 +1,59 @@
+﻿@using BrewHaven.Web.Models
+@model BrewHaven.Web.Models.Order
+@{
+    ViewBag.Title = "Order #" + Model.Id;
+}
+
+<section class="page-hero page-hero-slim">
+    <div class="container">
+        <p class="eyebrow eyebrow-light">Brew Haven · staff</p>
+        <h1>Order #@Model.Id</h1>
+        <p class="page-hero-lede">Placed @Model.PlacedAt.ToString("ddd d MMM yyyy, HH:mm") · status @Model.Status</p>
+    </div>
+</section>
+
+<div class="section cart-body">
+    <div class="container">
+        <div class="checkout-grid">
+            <div class="checkout-summary">
+                <h2>Items</h2>
+                <ul class="summary-list">
+                    @foreach (var line in Model.Items)
+                    {
+                        <li>
+                            <span class="summary-name"><strong>@line.Quantity × @line.ItemName</strong>
+                                @if (!string.IsNullOrEmpty(line.Notes))
+                                {
+                                    <span class="summary-notes">— @line.Notes</span>
+                                }
+                            </span>
+                            <span class="summary-price">@Money.Usd(line.UnitPrice * line.Quantity)</span>
+                        </li>
+                    }
+                </ul>
+                <div class="cart-total summary-total">
+                    <span>Total</span>
+                    <strong>@Money.Usd(Model.Total)</strong>
+                </div>
+                @if (Model.Status != "Completed")
+                {
+                    <form method="post" action="@Url.Action("Complete", "Orders", new { id = Model.Id })">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-solid btn-sm">Mark as completed</button>
+                    </form>
+                }
+                <a class="btn btn-ghost btn-sm" href="@Url.Action("Index", "Orders")">Back to all orders</a>
+            </div>
+
+            <div class="checkout-summary">
+                <h2>Customer</h2>
+                <dl class="confirmation-meta">
+                    <div><dt>Name</dt><dd>@Model.CustomerName</dd></div>
+                    <div><dt>Email</dt><dd>@Model.Email</dd></div>
+                    <div><dt>Phone</dt><dd>@(string.IsNullOrEmpty(Model.Phone) ? "—" : Model.Phone)</dd></div>
+                    <div><dt>Order notes</dt><dd>@(string.IsNullOrEmpty(Model.Notes) ? "—" : Model.Notes)</dd></div>
+                </dl>
+            </div>
+        </div>
+    </div>
+</div>

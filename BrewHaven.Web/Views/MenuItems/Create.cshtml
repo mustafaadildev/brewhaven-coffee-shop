@@ -1,0 +1,31 @@
+﻿@using BrewHaven.Web.Models
+@model BrewHaven.Web.Models.MenuItem
+@{
+    ViewBag.Title = "Add menu item";
+}
+
+<section class="page-hero page-hero-slim">
+    <div class="container">
+        <p class="eyebrow eyebrow-light">Brew Haven · staff</p>
+        <h1>Add a menu item</h1>
+        <p class="page-hero-lede">New board entries go live as soon as you save.</p>
+    </div>
+</section>
+
+<div class="section cart-body">
+    <div class="container">
+        <div class="contact-form-card admin-form-card">
+            <h2>Item details</h2>
+            @using (Html.BeginForm("Create", "MenuItems", FormMethod.Post, new { @class = "contact-form" }))
+            {
+                @Html.AntiForgeryToken()
+                @Html.ValidationSummary(true, "", new { @class = "validation-summary" })
+                @Html.Partial("_MenuItemFields", Model)
+                <div class="admin-form-actions">
+                    <button type="submit" class="btn btn-solid btn-lg">Save item</button>
+                    <a class="btn btn-ghost" href="@Url.Action("Index", "MenuItems")">Cancel</a>
+                </div>
+            }
+        </div>
+    </div>
+</div>

@@ -1,0 +1,55 @@
+﻿@using BrewHaven.Web.Models
+@model BrewHaven.Web.Models.MenuItem
+
+<div class="field-row">
+    <div class="field">
+        @Html.LabelFor(m => m.Name, "Name *")
+        @Html.TextBoxFor(m => m.Name, new { @class = "input", placeholder = "Maple Oat Cappuccino" })
+        @Html.ValidationMessageFor(m => m.Name)
+    </div>
+    <div class="field">
+        @Html.LabelFor(m => m.Price, "Price (USD) *")
+        @Html.TextBoxFor(m => m.Price, "{0:0.00}", new { @class = "input", placeholder = "4.50" })
+        @Html.ValidationMessageFor(m => m.Price)
+    </div>
+</div>
+
+<div class="field">
+    @Html.LabelFor(m => m.Category, "Category *")
+    @Html.DropDownListFor(m => m.Category,
+        new SelectList(Categories.Order, Model.Category),
+        "— pick a category —",
+        new { @class = "input" })
+    @Html.ValidationMessageFor(m => m.Category)
+</div>
+
+<div class="field">
+    @Html.LabelFor(m => m.Description, "Description")
+    @Html.TextAreaFor(m => m.Description, new { @class = "input", rows = 3, placeholder = "What makes it worth ordering, in one sentence." })
+    @Html.ValidationMessageFor(m => m.Description)
+</div>
+
+<div class="field">
+    @Html.LabelFor(m => m.ImageUrl, "Photo")
+    @Html.TextBoxFor(m => m.ImageUrl, new { @class = "input", placeholder = "~/Content/images/menu/…", list = "menu-photo-list" })
+    @Html.ValidationMessageFor(m => m.ImageUrl)
+    <datalist id="menu-photo-list">
+        @foreach (var file in (List<string>)ViewBag.Photos ?? new List<string>())
+        {
+            <option value="@("~/Content/images/menu/" + file)"></option>
+        }
+    </datalist>
+    <p class="form-note">App-relative path to the card photo. Start typing <strong>~/</strong> to see every bundled photo (espresso-shot, cappuccino, latte, pancakes, french-toast … all live in <strong>~/Content/images/menu/</strong>). Drop your own image into that folder and pick it the same way — leave empty to show placeholder art.</p>
+</div>
+
+<div class="field-row">
+    <div class="field">
+        @Html.LabelFor(m => m.Badge, "Badge (V, GF, New, Popular…)")
+        @Html.TextBoxFor(m => m.Badge, new { @class = "input", placeholder = "leave empty for none" })
+        @Html.ValidationMessageFor(m => m.Badge)
+    </div>
+    <div class="field field-check">
+        @Html.CheckBoxFor(m => m.IsAvailable)
+        @Html.LabelFor(m => m.IsAvailable, "Available for ordering (untick = shows as sold out)")
+    </div>
+</div>

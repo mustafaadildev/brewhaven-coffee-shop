@@ -1,0 +1,127 @@
+﻿@using System.Collections.Generic
+@using System.Linq
+@using BrewHaven.Web.Models
+@model BrewHaven.Web.Models.MenuViewModel
+@{
+    ViewBag.Title = "Menu";
+    var icons = new Dictionary<string, string>
+    {
+        { "coffee", "<svg viewBox='0 0 24 24' aria-hidden='true'><path d='M5 8h11v6a5 5 0 0 1-5 5h-1a5 5 0 0 1-5-5z' fill='none' stroke='currentColor' stroke-width='1.7'></path><path d='M16 9.5h2.2a2.3 2.3 0 0 1 0 4.6H16' fill='none' stroke='currentColor' stroke-width='1.7'></path><path d='M8.5 3v2.4M12.5 3v2.4' stroke='currentColor' stroke-width='1.7' stroke-linecap='round'></path></svg>" },
+        { "brewed", "<svg viewBox='0 0 24 24' aria-hidden='true'><path d='M6 4h12l-6 8z' fill='none' stroke='currentColor' stroke-width='1.7' stroke-linejoin='round'></path><path d='M6 4l6 8 6-8' fill='none' stroke='currentColor' stroke-width='1.7'></path><path d='M12 12v4' stroke='currentColor' stroke-width='1.7' stroke-linecap='round'></path><path d='M10.5 19.5a1.5 1.5 0 0 0 3 0' fill='none' stroke='currentColor' stroke-width='1.7'></path></svg>" },
+        { "breakfast", "<svg viewBox='0 0 24 24' aria-hidden='true'><circle cx='12' cy='13' r='8' fill='none' stroke='currentColor' stroke-width='1.7'></circle><circle cx='12' cy='13' r='3.2' fill='currentColor'></circle><path d='M3.5 7.5C5 5 8 3.5 12 3.5' fill='none' stroke='currentColor' stroke-width='1.7' stroke-linecap='round'></path></svg>" },
+        { "bakery", "<svg viewBox='0 0 24 24' aria-hidden='true'><path d='M4 14c0-4.4 3.6-8 8-8s8 3.6 8 8' fill='none' stroke='currentColor' stroke-width='1.7'></path><path d='M4 14c2 2.5 5 4 8 4s6-1.5 8-4' fill='none' stroke='currentColor' stroke-width='1.7'></path><path d='M12 6c-1.5 1-1.5 3 0 4M16.5 7.5c-1.4.6-2 2.3-1.3 3.6M7.5 7.5c1.4.6 2 2.3 1.3 3.6' fill='none' stroke='currentColor' stroke-width='1.5'></path></svg>" }
+    };
+
+    // Group the items by their fixed category order so sections keep their
+    // position even if an admin adds a new item to an older category.
+    // (Only used in the featured view — a filtered page shows one grid.)
+    var groups = new List<KeyValuePair<string, List<MenuItem>>>();
+    foreach (var cat in Categories.Order)
+    {
+        var items = Model.Items.Where(m => m.Category == cat).ToList();
+        if (items.Count > 0)
+        {
+            groups.Add(new KeyValuePair<string, List<MenuItem>>(cat, items));
+        }
+    }
+    foreach (var extra in Model.Items.Where(m => !Categories.Order.Contains(m.Category))
+                               .Select(m => m.Category).Distinct())
+    {
+        groups.Add(new KeyValuePair<string, List<MenuItem>>(extra,
+            Model.Items.Where(m => m.Category == extra).ToList()));
+    }
+}
+
+<section class="page-hero">
+    <div class="container">
+        <p class="eyebrow eyebrow-light">Brew Haven · menu</p>
+        <h1>Coffee, breakfast &amp; everything around them</h1>
+        <p class="page-hero-lede">Every plate and cup, made to order. <span class="legend"><span class="badge badge-mini">V</span> vegetarian · <span class="badge badge-mini">GF</span> gluten-friendly · <span class="badge badge-mini">Popular</span> what the regulars order</span></p>
+    </div>
+</section>
+
+<section class="menu-toolbar-wrap">
+    <div class="container">
+        <form method="get" action="@Url.Action("Menu", "Home")" class="menu-toolbar">
+            <input type="hidden" name="cat" value="@Model.Cat" />
+            <input class="input menu-search" type="search" name="q" value="@Model.Q" placeholder="Search drinks, food…" aria-label="Search the menu" />
+            <select class="input menu-sort" name="sort" aria-label="Sort the menu" onchange="this.form.submit()">
+                <option value="featured" @(Model.Sort == "featured" ? "selected" : "")>Featured order</option>
+                <option value="price-asc" @(Model.Sort == "price-asc" ? "selected" : "")>Price: low to high</option>
+                <option value="price-desc" @(Model.Sort == "price-desc" ? "selected" : "")>Price: high to low</option>
+                <option value="name" @(Model.Sort == "name" ? "selected" : "")>Name: A to Z</option>
+            </select>
+            <button type="submit" class="btn btn-solid">Search</button>
+        </form>
+        <nav class="menu-tabs" aria-label="Filter by category">
+            <a class="menu-tab @(Model.Cat == null ? "active" : "")" href="@Url.Action("Menu", "Home", new { q = Model.Q, cat = "", sort = Model.Sort })">All</a>
+            @foreach (var cat in Model.Categories)
+            {
+                <a class="menu-tab @(Model.Cat == cat ? "active" : "")" href="@Url.Action("Menu", "Home", new { q = Model.Q, cat = cat, sort = Model.Sort })">@cat</a>
+            }
+        </nav>
+    </div>
+</section>
+
+<div class="section menu-body">
+    <div class="container">
+        @if (!Model.IsFiltered)
+        {
+            foreach (var group in groups)
+            {
+                <section class="menu-section" id="@Categories.KeyFor(group.Key)">
+                    <div class="section-head">
+                        <span class="menu-icon">@Html.Raw(icons.ContainsKey(Categories.KeyFor(group.Key)) ? icons[Categories.KeyFor(group.Key)] : "")</span>
+                        <div>
+                            <h2>@group.Key</h2>
+                        </div>
+                    </div>
+                    <div class="menu-cards">
+                        @foreach (var item in group.Value)
+                        {
+                            @Html.Partial("_MenuCard", item)
+                        }
+                    </div>
+                </section>
+            }
+        }
+        else
+        {
+            <div class="menu-results-head">
+                <p class="menu-results-count">
+                    <strong>@Model.Items.Count</strong> item@(Model.Items.Count == 1 ? "" : "s")
+                    @if (Model.Q.Length > 0)
+                    {
+                        <text>for “@Model.Q”</text>
+                    }
+                    @if (Model.Cat != null)
+                    {
+                        <text>in @Model.Cat</text>
+                    }
+                </p>
+                <a class="menu-clear" href="@Url.Action("Menu", "Home")">Clear filters</a>
+            </div>
+
+            if (Model.Items.Count == 0)
+            {
+                <div class="menu-empty">
+                    <h3>Nothing matched@(Model.Q.Length > 0 ? " “" + Model.Q + "”" : "")</h3>
+                    <p>Try a different word — or browse everything again with one click.</p>
+                    <a class="btn btn-outline" href="@Url.Action("Menu", "Home")">Show the full menu</a>
+                </div>
+            }
+            else
+            {
+                <div class="menu-cards">
+                    @foreach (var item in Model.Items)
+                    {
+                        @Html.Partial("_MenuCard", item)
+                    }
+                </div>
+            }
+        }
+        <div class="menu-footnote">
+            <p><strong>Good to know:</strong> espresso drinks come in 8/12/16 oz unless noted; every milk alternative is free of charge; kitchen takes its last breakfast order 30 minutes before close. All prices in USD, taxes included. Tap <strong>Add</strong> on anything you like, then open <strong>Your order</strong> in the top bar to set quantities, changes and checkout.</p>
+        </div>
+    </div>
+</div>

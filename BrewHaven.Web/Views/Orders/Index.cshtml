@@ -1,0 +1,87 @@
+﻿@using System.Collections.Generic
+@using System.Linq
+@using BrewHaven.Web.Models
+@model List<BrewHaven.Web.Models.Order>
+@{
+    ViewBag.Title = "Orders";
+}
+
+<section class="page-hero page-hero-slim">
+    <div class="container">
+        <p class="eyebrow eyebrow-light">Brew Haven · staff</p>
+        <h1>Orders</h1>
+        <p class="page-hero-lede">Every order placed on the site, newest first. Open one for the full item list and per-item changes.</p>
+    </div>
+</section>
+
+<div class="section cart-body">
+    <div class="container">
+        <p class="admin-topbar">
+            <a class="btn btn-outline" href="@Url.Action("Dashboard", "Admin")">Dashboard</a>
+            <span>@Model.Count orders so far</span>
+            <form class="lock-form" method="post" action="@Url.Action("Lock", "Admin")">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-ghost btn-sm">Lock staff area</button>
+            </form>
+        </p>
+        @if (Model.Count == 0)
+        {
+            <div class="cart-empty">
+                <h2>No orders yet</h2>
+                <p>Once a customer checks out, the order lands here.</p>
+            </div>
+        }
+        else
+        {
+            <div class="cart-card">
+                <table class="cart-table admin-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Placed</th>
+                            <th>Customer</th>
+                            <th>Email</th>
+                            <th>Items</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var order in Model)
+                        {
+                            <tr>
+                                <td>#@order.Id</td>
+                                <td>@order.PlacedAt.ToString("dd MMM, HH:mm")</td>
+                                <td>@order.CustomerName</td>
+                                <td class="admin-email">@order.Email</td>
+                                <td>@order.Items.Sum(i => i.Quantity)</td>
+                                <td>@Money.Usd(order.Total)</td>
+                                <td>
+                                    @if (order.Status == "Completed")
+                                    {
+                                        <span class="status-badge status-done">Completed</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="status-badge status-placed">Placed</span>
+                                    }
+                                </td>
+                                <td class="cart-actions">
+                                    <a class="btn btn-outline btn-sm" href="@Url.Action("Details", "Orders", new { id = order.Id })">Open</a>
+                                    @if (order.Status != "Completed")
+                                    {
+                                        <form method="post" action="@Url.Action("Complete", "Orders", new { id = order.Id })">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-solid btn-sm">Complete</button>
+                                        </form>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>

@@ -1,0 +1,19 @@
+﻿@{
+    ViewBag.Title = "Something went wrong";
+}
+
+<section class="page-hero page-hero-slim">
+    <div class="container">
+        <p class="eyebrow eyebrow-light">Brew Haven</p>
+        <h1>Something went wrong</h1>
+        <p class="page-hero-lede">The coffee machine is fine — the page isn't. Please try again in a moment.</p>
+    </div>
+</section>
+
+<div class="section">
+    <div class="container error-links">
+        <a class="btn btn-solid" href="@Url.Action("Index", "Home")">Back to home</a>
+        <a class="btn btn-outline" href="@Url.Action("Menu", "Home")">See the menu</a>
+        <a class="btn btn-outline" href="@Url.Action("Index", "Cart")">Your order</a>
+    </div>
+</div>

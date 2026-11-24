@@ -1,0 +1,32 @@
+﻿@using BrewHaven.Web.Models
+@model BrewHaven.Web.Models.MenuItem
+@{
+    ViewBag.Title = "Edit " + Model.Name;
+}
+
+<section class="page-hero page-hero-slim">
+    <div class="container">
+        <p class="eyebrow eyebrow-light">Brew Haven · staff</p>
+        <h1>Edit “@Model.Name”</h1>
+        <p class="page-hero-lede">Renaming or re-pricing only affects the menu going forward — orders already placed keep the name and price they were sold at.</p>
+    </div>
+</section>
+
+<div class="section cart-body">
+    <div class="container">
+        <div class="contact-form-card admin-form-card">
+            <h2>Item details</h2>
+            @using (Html.BeginForm("Edit", "MenuItems", FormMethod.Post, new { @class = "contact-form" }))
+            {
+                @Html.AntiForgeryToken()
+                @Html.ValidationSummary(true, "", new { @class = "validation-summary" })
+                @Html.HiddenFor(m => m.Id)
+                @Html.Partial("_MenuItemFields", Model)
+                <div class="admin-form-actions">
+                    <button type="submit" class="btn btn-solid btn-lg">Save changes</button>
+                    <a class="btn btn-ghost" href="@Url.Action("Index", "MenuItems")">Cancel</a>
+                </div>
+            }
+        </div>
+    </div>
+</div>

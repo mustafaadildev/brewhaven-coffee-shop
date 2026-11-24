@@ -1,0 +1,55 @@
+﻿@using BrewHaven.Web.Models
+@model BrewHaven.Web.Models.Order
+@{
+    ViewBag.Title = "Order confirmed";
+}
+
+<section class="page-hero page-hero-slim">
+    <div class="container">
+        <p class="eyebrow eyebrow-light">Brew Haven · thank you</p>
+        <h1>Order #@(Model.Id) is in</h1>
+        <p class="page-hero-lede">Thanks, @Model.CustomerName. We saved your order and we'll confirm by email at @Model.Email. See you at the counter — 214 Willow Lane.</p>
+    </div>
+</section>
+
+<div class="section cart-body">
+    <div class="container">
+        <div class="checkout-summary confirmation-card">
+            <h2>What you ordered</h2>
+            <ul class="summary-list">
+                @foreach (var line in Model.Items)
+                {
+                    <li>
+                        <span class="summary-name"><strong>@line.Quantity × @line.ItemName</strong>
+                            @if (!string.IsNullOrEmpty(line.Notes))
+                            {
+                                <span class="summary-notes">— @line.Notes</span>
+                            }
+                        </span>
+                        <span class="summary-price">@Money.Usd(line.UnitPrice * line.Quantity)</span>
+                    </li>
+                }
+            </ul>
+            <div class="cart-total summary-total">
+                <span>Total</span>
+                <strong>@Money.Usd(Model.Total)</strong>
+            </div>
+            <dl class="confirmation-meta">
+                <div><dt>Placed</dt><dd>@Model.PlacedAt.ToString("ddd d MMM yyyy, HH:mm")</dd></div>
+                <div><dt>Status</dt><dd>@Model.Status</dd></div>
+                @if (!string.IsNullOrEmpty(Model.Phone))
+                {
+                    <div><dt>Phone</dt><dd>@Model.Phone</dd></div>
+                }
+                @if (!string.IsNullOrEmpty(Model.Notes))
+                {
+                    <div><dt>Order notes</dt><dd>@Model.Notes</dd></div>
+                }
+            </dl>
+            <div class="confirmation-actions">
+                <a class="btn btn-solid" href="@Url.Action("Menu", "Home")">Back to the menu</a>
+                <a class="btn btn-ghost" href="@Url.Action("Details", "Orders", new { id = Model.Id })">View order details</a>
+            </div>
+        </div>
+    </div>
+</div>

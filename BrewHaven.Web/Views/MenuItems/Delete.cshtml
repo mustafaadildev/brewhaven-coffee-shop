@@ -1,0 +1,36 @@
+﻿@using BrewHaven.Web.Models
+@model BrewHaven.Web.Models.MenuItem
+@{
+    ViewBag.Title = "Delete " + Model.Name;
+}
+
+<section class="page-hero page-hero-slim">
+    <div class="container">
+        <p class="eyebrow eyebrow-light">Brew Haven · staff</p>
+        <h1>Remove “@Model.Name”?</h1>
+        <p class="page-hero-lede">The item disappears from the public menu. Orders already placed keep their copy of it.</p>
+    </div>
+</section>
+
+<div class="section cart-body">
+    <div class="container">
+        <div class="contact-form-card admin-form-card">
+            <h2>@Model.Name</h2>
+            <p class="section-sub">@Model.Description</p>
+            <dl class="confirmation-meta">
+                <div><dt>Category</dt><dd>@Model.Category</dd></div>
+                <div><dt>Price</dt><dd>@Money.Usd(Model.Price)</dd></div>
+                <div><dt>Badge</dt><dd>@(string.IsNullOrEmpty(Model.Badge) ? "—" : Model.Badge)</dd></div>
+            </dl>
+            @using (Html.BeginForm("Delete", "MenuItems", FormMethod.Post, new { @class = "contact-form" }))
+            {
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" value="@Model.Id" />
+                <div class="admin-form-actions">
+                    <button type="submit" class="btn btn-solid btn-lg">Yes, delete it</button>
+                    <a class="btn btn-ghost" href="@Url.Action("Index", "MenuItems")">Keep it</a>
+                </div>
+            }
+        </div>
+    </div>
+</div>

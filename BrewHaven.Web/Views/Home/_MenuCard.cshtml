@@ -1,0 +1,41 @@
+﻿@using BrewHaven.Web.Models
+@model BrewHaven.Web.Models.MenuItem
+<article class="menu-card reveal@(Model.IsAvailable ? "" : " soldout")">
+    <div class="menu-card-media">
+        @if (!string.IsNullOrEmpty(Model.ImageUrl) && Model.ImageUrl.StartsWith("~/") && System.IO.File.Exists(Server.MapPath(Model.ImageUrl)))
+        {
+            <img src="@Url.Content(Model.ImageUrl)" alt="@Model.Name at Brew Haven" loading="lazy" />
+        }
+        else
+        {
+            <div class="menu-card-ph" role="img" aria-label="@Model.Name">
+                <span>@Model.Name.Substring(0, 1)</span>
+            </div>
+        }
+        @if (!string.IsNullOrEmpty(Model.Badge))
+        {
+            <span class="menu-card-chip">@Model.Badge</span>
+        }
+        @if (!Model.IsAvailable)
+        {
+            <span class="menu-card-chip chip-out">Sold out</span>
+        }
+    </div>
+    <div class="menu-card-body">
+        <h3>@Model.Name</h3>
+        <p>@Model.Description</p>
+        <div class="menu-card-foot">
+            <span class="menu-card-price">@Money.Usd(Model.Price)</span>
+            @if (Model.IsAvailable)
+            {
+                using (Html.BeginForm("Add", "Cart", FormMethod.Post, new { @class = "menu-card-add" }))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.Hidden("menuItemId", Model.Id)
+                    @Html.Hidden("quantity", 1)
+                    <button type="submit" class="btn btn-solid btn-sm">Add</button>
+                }
+            }
+        </div>
+    </div>
+</article>

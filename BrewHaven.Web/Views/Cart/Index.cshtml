@@ -1,0 +1,87 @@
+﻿@using System.Collections.Generic
+@using System.Linq
+@using BrewHaven.Web.Models
+@model List<BrewHaven.Web.Models.CartLineView>
+@{
+    ViewBag.Title = "Your order";
+    var total = Model.Sum(l => l.LineTotal);
+}
+
+<section class="page-hero page-hero-slim">
+    <div class="container">
+        <p class="eyebrow eyebrow-light">Brew Haven · order</p>
+        <h1>Your order</h1>
+        <p class="page-hero-lede">Change quantities or add per-item notes below, then check out. Pay at the counter or by phone when you collect.</p>
+    </div>
+</section>
+
+<div class="section cart-body">
+    <div class="container">
+        @if (Model.Count == 0)
+        {
+            <div class="cart-empty">
+                <h2>Nothing in here yet</h2>
+                <p>Your order is empty. Head back to the menu and add a coffee or a breakfast — your picks land on this page.</p>
+                <a class="btn btn-solid" href="@Url.Action("Menu", "Home")">Browse the menu</a>
+            </div>
+        }
+        else
+        {
+            <div class="cart-card">
+                <table class="cart-table">
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Qty</th>
+                            <th>Changes / notes</th>
+                            <th>Line</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var line in Model)
+                        {
+                            <tr>
+                                <td class="cart-name">
+                                    <strong>@line.Name</strong>
+                                    <span>@Money.Usd(line.UnitPrice) each</span>
+                                </td>
+                                <td>
+                                    <input type="number" name="quantity" value="@line.Quantity" min="1" max="99" class="qty-input qty-wide" aria-label="Quantity for @line.Name" form="update-@line.MenuItemId" />
+                                </td>
+                                <td>
+                                    <input type="text" name="notes" value="@line.Notes" maxlength="200" class="input input-note" placeholder="e.g. oat milk, extra hot, no butter" aria-label="Changes for @line.Name" form="update-@line.MenuItemId" />
+                                </td>
+                                <td class="cart-line-total">@Money.Usd(line.LineTotal)</td>
+                                <td class="cart-actions">
+                                    <form id="update-@line.MenuItemId" method="post" action="@Url.Action("Update", "Cart")">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="menuItemId" value="@line.MenuItemId" />
+                                        <button type="submit" class="btn btn-outline btn-sm">Save</button>
+                                    </form>
+                                    <form method="post" action="@Url.Action("Remove", "Cart")">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="menuItemId" value="@line.MenuItemId" />
+                                        <button type="submit" class="btn btn-ghost btn-sm">Remove</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+                <div class="cart-footer">
+                    <form method="post" action="@Url.Action("Clear", "Cart")">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-ghost btn-sm">Clear order</button>
+                    </form>
+                    <div class="cart-total">
+                        <span>Total</span>
+                        <strong>@Money.Usd(total)</strong>
+                    </div>
+                    <a class="btn btn-solid btn-lg" href="@Url.Action("Checkout", "Orders")">Place the order</a>
+                </div>
+            </div>
+            <p class="form-note">Quantities and notes only stick after you press <strong>Save</strong> on the row. Removing everything clears the order.</p>
+        }
+    </div>
+</div>

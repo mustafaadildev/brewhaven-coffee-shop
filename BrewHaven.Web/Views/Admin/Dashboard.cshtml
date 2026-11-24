@@ -1,0 +1,168 @@
+﻿@using BrewHaven.Web.Models
+@model BrewHaven.Web.Models.DashboardViewModel
+@{
+    ViewBag.Title = "Dashboard";
+
+    // 14-day revenue chart geometry (hand-drawn SVG — no chart library).
+    var chartMax = Model.Days.Count > 0 ? Model.Days.Max(d => d.Revenue) : 0m;
+    if (chartMax <= 0) { chartMax = 1m; }
+    var barW = 26;
+    var gap = 10;
+    var chartH = 150;
+    var chartW = Model.Days.Count * barW + (Model.Days.Count - 1) * gap;
+
+    var topMax = Model.TopItems.Count > 0 ? Model.TopItems.Max(t => t.Quantity) : 1;
+    var statusTotal = Model.PlacedCount + Model.CompletedCount;
+    var statusPct = statusTotal > 0 ? (int)Math.Round(Model.PlacedCount * 100.0 / statusTotal) : 0;
+}
+
+<section class="page-hero page-hero-slim">
+    <div class="container">
+        <p class="eyebrow eyebrow-light">Brew Haven · staff</p>
+        <h1>Dashboard</h1>
+        <p class="page-hero-lede">Sales at a glance — today's numbers, the last 14 days, best sellers and the newest orders.</p>
+    </div>
+</section>
+
+<div class="section cart-body">
+    <div class="container">
+        <p class="admin-topbar">
+            <a class="btn btn-outline" href="@Url.Action("Index", "MenuItems")">Manage menu</a>
+            <a class="btn btn-outline" href="@Url.Action("Index", "Orders")">All orders</a>
+            <span>@Model.TotalOrders orders · @Money.Usd(Model.TotalRevenue) all-time</span>
+            <form class="lock-form" method="post" action="@Url.Action("Lock", "Admin")">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-ghost btn-sm">Lock staff area</button>
+            </form>
+        </p>
+
+        <div class="dash-stats">
+            <div class="dash-stat">
+                <strong class="dash-num">@Money.Usd(Model.RevenueToday)</strong>
+                <span class="dash-stat-label">Revenue today</span>
+            </div>
+            <div class="dash-stat">
+                <strong class="dash-num">@Model.OrdersToday</strong>
+                <span class="dash-stat-label">Orders today</span>
+            </div>
+            <div class="dash-stat">
+                <strong class="dash-num">@Money.Usd(Model.TotalRevenue)</strong>
+                <span class="dash-stat-label">All-time revenue</span>
+            </div>
+            <div class="dash-stat">
+                <strong class="dash-num">@Model.TotalOrders</strong>
+                <span class="dash-stat-label">All-time orders</span>
+            </div>
+            <div class="dash-stat">
+                <strong class="dash-num">@Money.Usd(Model.AvgOrderValue)</strong>
+                <span class="dash-stat-label">Avg order value</span>
+            </div>
+            <div class="dash-stat">
+                <strong class="dash-num">@Model.ItemsAvailable/@Model.ItemsOnMenu</strong>
+                <span class="dash-stat-label">Items available</span>
+            </div>
+        </div>
+
+        <div class="dash-grid">
+            <div class="cart-card dash-panel">
+                <h2>Revenue — last 14 days</h2>
+                <svg class="dash-chart" viewBox="0 0 @chartW @(chartH + 30)" role="img" aria-label="Revenue per day for the last 14 days">
+                    @for (var i = 0; i < Model.Days.Count; i++)
+                    {
+                        var d = Model.Days[i];
+                        var h = (int)Math.Round((double)(d.Revenue / chartMax) * chartH);
+                        var x = i * (barW + gap);
+                        var y = chartH - h;
+                        var barClass = d.Orders == 0 ? "dash-bar dash-bar-empty" : "dash-bar";
+                        var valClass = d.Orders == 0 ? "dash-bar-val dash-bar-hidden" : "dash-bar-val";
+                        <g>
+                            <title>@d.Date.ToString("dd MMM"): @Money.Usd(d.Revenue) from @d.Orders order(s)</title>
+                            <rect class="@barClass" x="@x" y="@y" width="@barW" height="@h" rx="4"></rect>
+                            <text class="@valClass" x="@(x + barW / 2)" y="@(y - 5)">@d.Orders</text>
+                            <text class="dash-day" x="@(x + barW / 2)" y="@(chartH + 16)">@d.Date.ToString("dd")</text>
+                        </g>
+                    }
+                </svg>
+                <p class="dash-chart-note">Numbers above the bars are orders placed that day. Hover a bar for its totals.</p>
+            </div>
+
+            <div class="cart-card dash-panel">
+                <h2>Best sellers</h2>
+                @if (Model.TopItems.Count == 0)
+                {
+                    <p class="dash-empty">Nothing sold yet — the list fills up as orders come in.</p>
+                }
+                else
+                {
+                    foreach (var t in Model.TopItems)
+                    {
+                        var pct = topMax > 0 ? (int)Math.Round(t.Quantity * 100.0 / topMax) : 0;
+                        <div class="dash-toprow">
+                            <span class="dash-topname">@t.Name</span>
+                            <span class="dash-topbar"><span class="dash-topfill" style="width:@(pct)%"></span></span>
+                            <span class="dash-topqty">@t.Quantity sold · @Money.Usd(t.Revenue)</span>
+                        </div>
+                    }
+                }
+
+                <h2 class="dash-h2gap">Order status</h2>
+                <div class="dash-statusbar">
+                    <span class="dash-statusfill" style="width:@(statusPct)%"></span>
+                </div>
+                <p class="dash-statusnote">@Model.PlacedCount still placed · @Model.CompletedCount completed</p>
+            </div>
+        </div>
+
+        <div class="cart-card dash-panel">
+            <h2>Latest orders</h2>
+            @if (Model.RecentOrders.Count == 0)
+            {
+                <div class="cart-empty">
+                    <h3>No orders yet</h3>
+                    <p>Place a test order from the menu and come back — the dashboard fills up instantly.</p>
+                </div>
+            }
+            else
+            {
+                <table class="cart-table admin-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Placed</th>
+                            <th>Customer</th>
+                            <th>Items</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var order in Model.RecentOrders)
+                        {
+                            <tr>
+                                <td>#@order.Id</td>
+                                <td>@order.PlacedAt.ToString("dd MMM, HH:mm")</td>
+                                <td>@order.CustomerName</td>
+                                <td>@order.Items.Sum(i => i.Quantity)</td>
+                                <td>@Money.Usd(order.Total)</td>
+                                <td>
+                                    @if (order.Status == "Completed")
+                                    {
+                                        <span class="status-badge status-done">Completed</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="status-badge status-placed">Placed</span>
+                                    }
+                                </td>
+                                <td class="cart-actions">
+                                    <a class="btn btn-outline btn-sm" href="@Url.Action("Details", "Orders", new { id = order.Id })">Open</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </div>
+</div>

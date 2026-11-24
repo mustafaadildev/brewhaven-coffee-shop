@@ -1,0 +1,60 @@
+﻿@using System.Collections.Generic
+@using BrewHaven.Web.Models
+@model List<BrewHaven.Web.Models.MenuItem>
+@{
+    ViewBag.Title = "Manage menu";
+}
+
+<section class="page-hero page-hero-slim">
+    <div class="container">
+        <p class="eyebrow eyebrow-light">Brew Haven · staff</p>
+        <h1>Manage the menu</h1>
+        <p class="page-hero-lede">Add, edit, retire or re-price anything on the board. Changes go live on the menu the moment you save.</p>
+    </div>
+</section>
+
+<div class="section cart-body">
+    <div class="container">
+        <p class="admin-topbar">
+            <a class="btn btn-outline" href="@Url.Action("Dashboard", "Admin")">Dashboard</a>
+            <a class="btn btn-solid" href="@Url.Action("Create", "MenuItems")">Add a new item</a>
+            <span>@Model.Count items on the menu</span>
+            <form class="lock-form" method="post" action="@Url.Action("Lock", "Admin")">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-ghost btn-sm">Lock staff area</button>
+            </form>
+        </p>
+        <div class="cart-card">
+            <table class="cart-table admin-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Name</th>
+                        <th>Category</th>
+                        <th>Price</th>
+                        <th>Badge</th>
+                        <th>Available</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.Id</td>
+                            <td class="admin-name"><strong>@item.Name</strong></td>
+                            <td>@item.Category</td>
+                            <td>@Money.Usd(item.Price)</td>
+                            <td>@(string.IsNullOrEmpty(item.Badge) ? "—" : item.Badge)</td>
+                            <td>@(item.IsAvailable ? "Yes" : "Sold out")</td>
+                            <td class="cart-actions">
+                                <a class="btn btn-outline btn-sm" href="@Url.Action("Edit", "MenuItems", new { id = item.Id })">Edit</a>
+                                <a class="btn btn-ghost btn-sm" href="@Url.Action("Delete", "MenuItems", new { id = item.Id })">Delete</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
